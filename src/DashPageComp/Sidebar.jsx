@@ -3,11 +3,10 @@ import Icon from '../SVGs/Icon'
 import HomeIcon from '../SVGs/HomeIcon'
 import TasksIcon from '../SVGs/TasksIcon'
 import CalendarIcon from '../SVGs/CalendarIcon'
-import ClockIcon from '../SVGs/ClockIcon'
 import InsightsIcon from '../SVGs/InsightsIcon'
 import '../App.css'
 import SettingsIcon from '../SVGs/SettingsIcon'
-import CrossIcon from './CrossIcon'
+import CrossIcon from '../SVGs/CrossIcon'
 
 const Sidebar = ({open, onClose}) => {
     return (
@@ -37,11 +36,6 @@ const Sidebar = ({open, onClose}) => {
                     <a href="#" className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
                         <CalendarIcon></CalendarIcon>
                         <span className='font-medium'>Calendar</span>
-                    </a>
-
-                    <a href='#' className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
-                        <ClockIcon></ClockIcon>
-                        <span className='font-medium'>Pomodoro</span>
                     </a>
 
                     <a href="#" className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
