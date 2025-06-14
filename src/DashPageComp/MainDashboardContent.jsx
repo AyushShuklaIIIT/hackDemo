@@ -57,7 +57,7 @@ const MainDashboardContent = () => {
                                 <p className='text-3xl font-bold'>14 days</p>
                                 <p className='text-[#94a3b8] text-sm'>Personal best: 21</p>
                             </div>
-                            <div className='flex'>
+                            <div className='flex md:hidden lg:flex'>
                                 <div className='w-4 h-10 bg-purple-200 rounded-sm mx-0.5'></div>
                                 <div className='w-4 h-14 bg-[#c3b5fd] rounded-sm mx-0.5'></div>
                                 <div className='w-4 h-8 bg-purple-200 rounded-sm mx-0.5'></div>

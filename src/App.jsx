@@ -1,6 +1,5 @@
 import Navigation from "./Components/Navigation"
-import HeroSection from "./Components/HeroSection"
-import Features from "./Components/Features"
+import HomePage from "./Components/HomePage"
 import Dashboard from "./DashPageComp/Dashboard"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 
@@ -9,9 +8,7 @@ function App() {
     {
       path: "/",
       element: <>
-        <Navigation></Navigation>
-        <HeroSection></HeroSection>
-        <Features></Features>
+        <HomePage></HomePage>
       </>
     },
     {

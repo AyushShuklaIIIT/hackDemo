@@ -3,7 +3,7 @@ import Fig1 from '../SVGs/Fig1'
 import ButtonIcon from '../SVGs/ButtonIcon'
 import { NavLink } from 'react-router-dom'
 
-const Navigation = () => {
+const Navigation = ({setSidebarOpen}) => {
   return (
     <nav className='bg-white/80 backdrop-blur-md py-4 px-6 fixed w-full z-10 border-b border-gray-100'>
       <div className='max-w-7xl mx-auto flex justify-between items-center'>
@@ -22,7 +22,7 @@ const Navigation = () => {
         <div className='flex items-center space-x-4'>
             <NavLink to="/login" className='hidden md:block text-gray-600 hover:text-[#0068c6] transition-colors'>Log In</NavLink>
             <NavLink to="/dashboard" className='hidden md:block px-4 py-2 bg-[#0068c6] text-white rounded-lg hover:bg-[#0054a1] transition-colors'>Sign Up</NavLink>
-            <button className='md:hidden text-gray-600'>
+            <button id='open-dashboard-sidebar' className='md:hidden text-gray-600 sidebar-toggle-btn' onClick={() => setSidebarOpen(true)}>
                 <ButtonIcon></ButtonIcon>
             </button>
         </div>

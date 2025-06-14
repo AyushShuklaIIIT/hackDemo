@@ -7,19 +7,18 @@ import ClockIcon from '../SVGs/ClockIcon'
 import InsightsIcon from '../SVGs/InsightsIcon'
 import '../App.css'
 import SettingsIcon from '../SVGs/SettingsIcon'
+import CrossIcon from './CrossIcon'
 
-const Sidebar = () => {
+const Sidebar = ({open, onClose}) => {
     return (
-        <aside id='sidebar' className='bg-white w-64 border-r border-gray-200 h-full flex-shrink-0 flex flex-col z-20 fixed md:relative transform md:translate-x-0 -translate-x-full transition-transform duration-200 ease-in-out'>
+        <aside id='sidebar' className={`bg-white w-64 border-r border-gray-200 h-full flex-shrink-0 flex flex-col z-20 fixed md:relative transform md:translate-x-0 ${open ? 'translate-x-0': '-translate-x-full'} transition-transform duration-200 ease-in-out`}>
             <div className='p-4 border-b border-gray-200 flex items-center justify-between'>
                 <div className='flex items-center space-x-2'>
                     <Icon></Icon>
                     <span className='font-bold text-lg text-[#1e293b]'>Task Mentor</span>
                 </div>
-                <button id='close-sidebar' className='md:hidden text-[#64748b] hover:text-[#334155]'>
-                    <svg xmlns='http://www.w3.org/2000/svg' className='h-6 w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M6 18L18 6M6 6l12 12' />
-                    </svg>
+                <button id='close-sidebar' className='md:hidden text-[#64748b] hover:text-[#334155]' onClick={onClose}>
+                    <CrossIcon></CrossIcon>
                 </button>
             </div>
 

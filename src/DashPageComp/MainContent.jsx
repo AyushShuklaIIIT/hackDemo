@@ -2,10 +2,10 @@ import React from 'react'
 import TopBar from './TopBar'
 import MainDashboardContent from './MainDashboardContent'
 
-const MainContent = () => {
+const MainContent = ({onOpenSidebar}) => {
   return (
     <div className='flex-1 flex flex-col overflow-hidden'>
-      <TopBar></TopBar>
+      <TopBar onOpenSidebar={onOpenSidebar}></TopBar>
       <MainDashboardContent></MainDashboardContent>
     </div>
   )
