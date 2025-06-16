@@ -8,7 +8,7 @@ const PomodoroTimer = () => {
     const [breakLength, setBreakLength] = useState(5);
     const [sessionLength, setSessionLength] = useState(25);
     const [isSession, setIsSession] = useState(true);
-    const [timeLeft, setTimeLeft] = useState(1 * 60);
+    const [timeLeft, setTimeLeft] = useState(25 * 60);
     const [isRunning, setIsRunning] = useState(false);
     const timerRef = useRef(null);
     const audioRef = useRef();
