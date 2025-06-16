@@ -25,20 +25,43 @@ const Signup = () => {
         }))
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const { password, confirmPassword } = formData;
+        const { fullName, email, password, confirmPassword } = formData;
 
         if(password !== confirmPassword) {
             setError('Passwords do not match');
             return;
         }
 
-        setError('');
-        console.log('Form submitted successfully: ', formData);
-        setformData({fullName: '', email: '', password: '', confirmPassword: ''});
-        navigate('/dashboard');
+        try {
+            const res = await fetch('http://localhost:8000/api/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: fullName,
+                    email,
+                    password,
+                }),
+            });
+
+            const data = await res.json();
+            if(!res.ok) {
+                setError(data.message || 'Signup failed');
+                return;
+            }
+
+            console.log('User registered: ', data);
+            setError('');
+            setformData({fullName: '', email: '', password: '', confirmPassword: ''});
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Error during signup: ', err);
+            setError('Something went wrong. Please try again.');
+        }
     }
 
     return (

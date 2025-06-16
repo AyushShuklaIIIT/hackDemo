@@ -1,8 +1,9 @@
 import React from 'react'
+import './signup.css'
 
 const Login = () => {
   return (
-    <div>
+    <div className='inter-text bg-signup'>
       
     </div>
   )
