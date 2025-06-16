@@ -2,6 +2,7 @@ import Navigation from "./Components/Navigation"
 import HomePage from "./Components/HomePage"
 import Dashboard from "./DashPageComp/Dashboard"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import Signup from "./SignUp/Signup"
 
 function App() {
   const router = createBrowserRouter([
@@ -20,8 +21,7 @@ function App() {
     {
       path: "/signup",
       element: <>
-        <Navigation></Navigation>
-        <div>This is signup page</div>
+        <Signup></Signup>
       </>
     }
   ])

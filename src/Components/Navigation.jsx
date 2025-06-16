@@ -20,8 +20,8 @@ const Navigation = ({setSidebarOpen}) => {
         </div> 
 
         <div className='flex items-center space-x-4'>
-            <NavLink to="/login" className='hidden md:block text-gray-600 hover:text-[#0068c6] transition-colors'>Log In</NavLink>
-            <NavLink to="/dashboard" className='hidden md:block px-4 py-2 bg-[#0068c6] text-white rounded-lg hover:bg-[#0054a1] transition-colors'>Sign Up</NavLink>
+            <NavLink to="/dashboard" className='hidden md:block text-gray-600 hover:text-[#0068c6] transition-colors'>Log In</NavLink>
+            <NavLink to="/signup" className='hidden md:block px-4 py-2 bg-[#0068c6] text-white rounded-lg hover:bg-[#0054a1] transition-colors'>Sign Up</NavLink>
             <button id='open-dashboard-sidebar' className='md:hidden text-gray-600 sidebar-toggle-btn' onClick={() => setSidebarOpen(true)}>
                 <ButtonIcon></ButtonIcon>
             </button>
