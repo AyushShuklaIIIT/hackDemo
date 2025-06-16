@@ -12,8 +12,8 @@ const Sidebar = ({open, onClose}) => {
             <a href="#" className='text-gray-600 hover:text-[#0068c6] transition-colors'>Pricing</a>
             <a href="#" className='text-gray-600 hover:text-[#0068c6] transition-colors'>Resources</a>
             <a href="#about" className='text-gray-600 hover:text-[#0068c6] transition-colors'>About</a>
-            <NavLink to="/login" className='text-gray-600 hover:text-[#0068c6] transition-colors'>Log In</NavLink>
-            <NavLink to="/dashboard" className='px-4 py-2 bg-[#0068c6] text-white rounded-lg hover:bg-[#0054a1] transition-colors'>Sign Up</NavLink>
+            <NavLink to="/dashboard" className='text-gray-600 hover:text-[#0068c6] transition-colors'>Log In</NavLink>
+            <NavLink to="/signup" className='px-4 py-2 bg-[#0068c6] text-white rounded-lg hover:bg-[#0054a1] transition-colors'>Sign Up</NavLink>
         </div>
       </div>
       {open && <div className='sidebar-overlay' onClick={onClose}></div>}

@@ -23,6 +23,10 @@ function App() {
       element: <>
         <Signup></Signup>
       </>
+    },
+    {
+      path: "/login",
+      element: <></>
     }
   ])
   return (

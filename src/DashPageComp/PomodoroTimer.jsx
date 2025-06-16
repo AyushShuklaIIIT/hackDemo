@@ -6,7 +6,7 @@ import UpButton from './PomodoroButtons/UpButton';
 const circumference = 2 * Math.PI * 45;
 const PomodoroTimer = () => {
     const [breakLength, setBreakLength] = useState(5);
-    const [sessionLength, setSessionLength] = useState(1);
+    const [sessionLength, setSessionLength] = useState(25);
     const [isSession, setIsSession] = useState(true);
     const [timeLeft, setTimeLeft] = useState(1 * 60);
     const [isRunning, setIsRunning] = useState(false);
