@@ -4,7 +4,7 @@ import Fig1 from '../SVGs/Fig1'
 import PhoneIcon from '../SVGs/PhoneIcon'
 import RobotIcon from '../SVGs/RobotIcon'
 import ClockIcon from './ClockIcon'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, NavLink } from 'react-router-dom'
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -110,7 +110,7 @@ const Signup = () => {
                         <div className='text-center mt-4'>
                             <p className='text-gray-600'>
                                 Already have an account?
-                                <a href="#" className='text-purple-600 font-medium hover:underline'> Sign in</a>
+                                <NavLink to="/login" className='text-purple-600 font-medium hover:underline'> Sign in</NavLink>
                             </p>
                         </div>
                     </div>
