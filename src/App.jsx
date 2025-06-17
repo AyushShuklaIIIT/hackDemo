@@ -3,7 +3,7 @@ import Dashboard from "./DashPageComp/Dashboard"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import Signup from "./SignUp/Signup"
 import Login from "./SignUp/Login"
-import Calendar from "./Calendar/Calendar"
+import CalPlusNav from "./Calendar/CalPlusNav"
 
 function App() {
   const router = createBrowserRouter([
@@ -31,7 +31,9 @@ function App() {
     },
     {
       path: '/calendar',
-      element: <><Calendar></Calendar></>
+      element: <>
+      <CalPlusNav></CalPlusNav>
+      </>
     }
   ])
   return (

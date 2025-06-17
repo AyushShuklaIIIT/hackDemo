@@ -7,7 +7,7 @@ const Dashboard = () => {
   return (
     <div className='font-sans bg-gray-50 text-[#1e293b] flex h-screen overflow-hidden'>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)}></Sidebar>
-      <MainContent onOpenSidebar={() => setSidebarOpen(true)}></MainContent>
+      <MainContent onOpenSidebar={() => setSidebarOpen(true)}></MainContent> 
     </div>
   )
 }

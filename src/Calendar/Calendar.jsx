@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faPlus, faChevronLeft, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { v4 as uuidv4 } from 'uuid';
 import './calendar.css';
-import Fig1 from '../SVGs/Fig1';
+import HamburgerIcon from '../SVGs/HamburgerIcon';
 
 const formatDate = (date) => {
     const year = date.getFullYear();
@@ -16,7 +16,7 @@ const getMonthName = (date) => {
     return date.toLocaleString('default', { month: 'long' });
 };
 
-const Calendar = () => {
+const Calendar = ({onOpenSidebar}) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -157,12 +157,11 @@ const Calendar = () => {
     const todayFormatted = formatDate(new Date());
 
     return (
-        <div className='calendar-body min-h-screen flex flex-col'>
+        <div className='flex-1 calendar-body min-h-screen flex flex-col'>
             <header className='bg-white shadow-sm py-3 px-4 md:px-6 flex justify-between items-center'>
-                <div className='flex items-center'>
-                    <Fig1></Fig1>
-                    <h1 className='text-xl font-semibold text-gray-800 ml-3 hidden md:block'>Virtual Mentor</h1>
-                </div>
+                <button id='open-sidebar' className='md:hidden mr-4 text-[#64748b] hover:text-[#334155]' onClick={onOpenSidebar}>
+                <HamburgerIcon></HamburgerIcon>
+            </button> 
                 <button
                     className='btn btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center'
                     onClick={() => handleOpenModalForNew(formatDate(new Date()))}

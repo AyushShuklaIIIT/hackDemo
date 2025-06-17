@@ -1,15 +1,14 @@
 import React from 'react'
 import NotificationBell from '../SVGs/NotificationBell'
+import HamburgerIcon from '../SVGs/HamburgerIcon'
 
 const TopBar = ({onOpenSidebar}) => {
   return (
     <header className='bg-white border-b border-gray-200 flex items-center justify-between p-4'>
         <div className='flex items-center'>
             <button id='open-sidebar' className='md:hidden mr-4 text-[#64748b] hover:text-[#334155]' onClick={onOpenSidebar}>
-                <svg xmlns='http://www.w3.org/2000/svg' className='h-6 w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 6h16M4 12h16M4 18h16' />
-                </svg>
-            </button>
+                <HamburgerIcon></HamburgerIcon>
+            </button> 
             <h1 className='text-xl font-semibold text-[#1e293b]'>Dashboard</h1>
         </div>
 

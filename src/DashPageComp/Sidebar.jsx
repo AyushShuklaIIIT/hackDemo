@@ -7,6 +7,7 @@ import InsightsIcon from '../SVGs/InsightsIcon'
 import '../App.css'
 import SettingsIcon from '../SVGs/SettingsIcon'
 import CrossIcon from '../SVGs/CrossIcon'
+import { NavLink } from 'react-router-dom'
 
 const Sidebar = ({open, onClose}) => {
     return (
@@ -23,20 +24,20 @@ const Sidebar = ({open, onClose}) => {
 
             <div className='py-4 flex-1 overflow-y-auto'>
                 <nav className='px-4 space-y-1'>
-                    <a href="#" className='sidebar-active flex items-center px-4 py-3 rounded-lg group'>
+                    <NavLink to="/dashboard" className={(e) => `${e.isActive ? "sidebar-active" : "text-[#475569] hover:bg-gray-50"} flex items-center px-4 py-3 rounded-lg group`}>
                         <HomeIcon></HomeIcon>
                         <span className='font-medium'>Dashboard</span>
-                    </a>
+                    </NavLink>
 
                     <a href="#" className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
                         <TasksIcon></TasksIcon>
                         <span className='font-medium'>Tasks</span>
                     </a>
 
-                    <a href="#" className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
+                    <NavLink to="/calendar" className={(e) => `${e.isActive ? "sidebar-active" : "text-[#475569] hover:bg-gray-50"} flex items-center px-4 py-3 rounded-lg group`}>
                         <CalendarIcon></CalendarIcon>
                         <span className='font-medium'>Calendar</span>
-                    </a>
+                    </NavLink>
 
                     <a href="#" className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
                         <InsightsIcon></InsightsIcon>
