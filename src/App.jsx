@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import Signup from "./SignUp/Signup"
 import Login from "./SignUp/Login"
 import CalPlusNav from "./Calendar/CalPlusNav"
+import TaskNav from "./Tasks/TaskNav"
 
 function App() {
   const router = createBrowserRouter([
@@ -11,6 +12,7 @@ function App() {
       path: "/",
       element: <>
         <HomePage></HomePage>
+        {/* <Tasks></Tasks> */}
       </>
     },
     {
@@ -34,6 +36,10 @@ function App() {
       element: <>
       <CalPlusNav></CalPlusNav>
       </>
+    },
+    {
+      path: '/tasks',
+      element: <><TaskNav></TaskNav></>
     }
   ])
   return (

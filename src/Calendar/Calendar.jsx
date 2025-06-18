@@ -16,7 +16,7 @@ const getMonthName = (date) => {
     return date.toLocaleString('default', { month: 'long' });
 };
 
-const Calendar = ({onOpenSidebar}) => {
+const Calendar = ({ onOpenSidebar }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,46 +29,52 @@ const Calendar = ({onOpenSidebar}) => {
     useEffect(() => {
         try {
             const savedTasks = localStorage.getItem('virtualMentorTasks');
-            if(savedTasks && savedTasks !== '[]') {
+            if (savedTasks && savedTasks !== '[]') {
                 setTasks(JSON.parse(savedTasks));
             }
             else {
                 const defaultTasks = [
                     {
                         id: uuidv4(),
-                        date: formatDate(new Date()),
+                        dueDate: formatDate(new Date()),
                         title: 'Team Meeting',
                         description: 'Weekly team sync',
-                        priority: 'medium', 
-                        time: '10:00'
+                        priority: 'medium',
+                        time: '10:00',
+                        tag: 'work',
+                        completed: false,
+                        createdAt: new Date().toISOString()
                     },
                     {
                         id: uuidv4(),
-                        date: formatDate(new Date()),
+                        dueDate: formatDate(new Date()),
                         title: 'Project Deadline',
                         description: 'Submit final deliverables',
                         priority: 'high',
-                        time: '15:00'
+                        time: '15:00',
+                        tag: 'work',
+                        completed: false,
+                        createdAt: new Date().toISOString()
                     }
                 ];
                 setTasks(defaultTasks);
             }
-        } catch(error) {
+        } catch (error) {
             console.error('Failed to load tasks from localStorage', error);
             setTasks([]);
         }
-    }, []); 
+    }, []);
 
     // Effect for saving tasks to localStorage whenever the tasks state changes
     useEffect(() => {
-        if(isInitialMount.current) {
+        if (isInitialMount.current) {
             isInitialMount.current = false;
             return;
         }
 
         try {
             localStorage.setItem('virtualMentorTasks', JSON.stringify(tasks));
-        } catch(error) {
+        } catch (error) {
             console.error("Failed to save tasks to localStorage", error);
         }
     }, [tasks]);
@@ -115,8 +121,8 @@ const Calendar = ({onOpenSidebar}) => {
         setCurrentDate(new Date());
     };
 
-    const handleOpenModalForNew = (date) => {
-        setSelectedDate(date);
+    const handleOpenModalForNew = (dueDate) => {
+        setSelectedDate(dueDate);
         setSelectedTask(null);
         setIsModalOpen(true);
     };
@@ -136,13 +142,19 @@ const Calendar = ({onOpenSidebar}) => {
     const handleSaveTask = (taskData) => {
         setTasks(prevTasks => {
             const taskExists = prevTasks.some(t => t.id === taskData.id);
+            let updatedTasks;
+
             if (taskExists) {
-                // Update existing task
-                return prevTasks.map(t => t.id === taskData.id ? taskData : t);
+                updatedTasks = prevTasks.map(t => t.id === taskData.id ? taskData : t);
             } else {
-                // Add new task
-                return [...prevTasks, taskData];
+                updatedTasks = [...prevTasks, {
+                    ...taskData,
+                    createdAt: new Date().toISOString()
+                }];
             }
+
+            localStorage.setItem('virtualMentorTasks', JSON.stringify(updatedTasks));
+            return updatedTasks;
         });
         handleCloseModal();
     };
@@ -153,15 +165,15 @@ const Calendar = ({onOpenSidebar}) => {
             handleCloseModal();
         }
     };
-    
+
     const todayFormatted = formatDate(new Date());
 
     return (
         <div className='flex-1 calendar-body min-h-screen flex flex-col'>
             <header className='bg-white shadow-sm py-3 px-4 md:px-6 flex justify-between items-center'>
                 <button id='open-sidebar' className='md:hidden mr-4 text-[#64748b] hover:text-[#334155]' onClick={onOpenSidebar}>
-                <HamburgerIcon></HamburgerIcon>
-            </button> 
+                    <HamburgerIcon></HamburgerIcon>
+                </button>
                 <button
                     className='btn btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center'
                     onClick={() => handleOpenModalForNew(formatDate(new Date()))}
@@ -169,7 +181,7 @@ const Calendar = ({onOpenSidebar}) => {
                     <FontAwesomeIcon icon={faPlus} />
                     <span className='ml-2'>Add Task</span>
                 </button>
-                 <div className='w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer'>
+                <div className='w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer'>
                     <span className='text-gray-700 font-medium'>JD</span>
                 </div>
             </header>
@@ -206,7 +218,7 @@ const Calendar = ({onOpenSidebar}) => {
                     <div className='grid grid-cols-7'>
                         {calendarDays.map(({ date, isDifferentMonth }) => {
                             const dateStr = formatDate(date);
-                            const tasksForDay = tasks.filter(t => t.date === dateStr);
+                            const tasksForDay = tasks.filter(t => t.dueDate === dateStr);
                             const isToday = dateStr === todayFormatted;
 
                             return (
@@ -271,11 +283,14 @@ const TaskModal = ({ task, date, onSave, onDelete, onClose }) => {
         ? { ...task }
         : {
             id: uuidv4(),
-            date: date,
+            dueDate: date,
             title: '',
             description: '',
             priority: 'medium',
             time: '',
+            tag: 'work',
+            completed: false,
+            createdAt: new Date().toISOString()
         };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -295,7 +310,7 @@ const TaskModal = ({ task, date, onSave, onDelete, onClose }) => {
     };
 
     const modalDisplayDate = new Date(
-      (formData.date + 'T00:00:00') // Add time to avoid timezone issues
+        (formData.dueDate + 'T00:00:00') // Add time to avoid timezone issues
     ).toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
@@ -336,13 +351,28 @@ const TaskModal = ({ task, date, onSave, onDelete, onClose }) => {
                             </select>
                         </div>
                         <div>
+                            <label htmlFor="taskTag" className='block text-sm font-medium text-gray-700 mb-1'>Tag</label>
+                            <select name="tag" id="taskTag" value={formData.tag} onChange={handleChange} className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500'>
+                                <option value="work">Work</option>
+                                <option value="personal">Personal</option>
+                                <option value="health">Health</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                        <div>
+                            <label htmlFor="taskDueDate" className='block text-sm font-medium text-gray-700 mb-1'>Due Date</label>
+                            <input type="date" name='dueDate' id='taskDueDate' value={formData.dueDate} onChange={handleChange} className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500' />
+                        </div>
+                        <div>
                             <label htmlFor="taskTime" className='block text-sm font-medium text-gray-700 mb-1'>Time</label>
                             <input type="time" name="time" id="taskTime" value={formData.time} onChange={handleChange} className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500' />
                         </div>
                     </div>
 
                     <div className='flex justify-between items-center'>
-                         {isEditMode && (
+                        {isEditMode && (
                             <button type='button' className='btn px-4 py-2 border border-red-500 text-red-500 rounded-lg font-medium' onClick={() => onDelete(task.id)}>
                                 Delete
                             </button>
