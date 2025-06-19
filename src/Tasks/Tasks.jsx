@@ -8,7 +8,6 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import HamburgerIcon from '../SVGs/HamburgerIcon';
 
-// Utility functions
 const formatDate = date => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -49,9 +48,7 @@ const formatTimeForDisplay = timeString => {
   return `${hour12}:${minutes} ${ampm}`;
 };
 
-// Sub-components
 const TaskCard = ({ task, onToggleComplete, onEdit, onDelete }) => {
-  // Safely handle potentially undefined properties
   const tag = task.tag || '';
   const priority = task.priority || '';
   const dueDate = task.dueDate || '';
@@ -365,7 +362,6 @@ const Tasks = ({ onOpenSidebar }) => {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [tasksToday, setTasksToday] = useState(0);
 
-  // Initialize tasks
   useEffect(() => {
     const savedTasks = localStorage.getItem('virtualMentorTasks');
     if (savedTasks) {
@@ -459,18 +455,15 @@ const Tasks = ({ onOpenSidebar }) => {
     }
   }, []);
 
-  // Update tasks today count
   useEffect(() => {
     const today = formatDate(new Date());
     const count = tasks.filter(task => task.dueDate === today && !task.completed).length;
     setTasksToday(count);
   }, [tasks]);
 
-  // Filter and sort tasks
   const filteredTasks = useCallback(() => {
     let filtered = [...tasks];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(task =>
@@ -479,7 +472,6 @@ const Tasks = ({ onOpenSidebar }) => {
       );
     }
 
-    // Date filter
     if (filters.date !== 'all') {
       const today = formatDate(new Date());
       const tomorrow = formatDate(new Date(new Date().setDate(new Date().getDate() + 1)));
@@ -504,23 +496,19 @@ const Tasks = ({ onOpenSidebar }) => {
       }
     }
 
-    // Priority filter
     if (filters.priority !== 'all') {
       filtered = filtered.filter(task => task.priority === filters.priority);
     }
 
-    // Status filter
     if (filters.status !== 'all') {
       const isCompleted = filters.status === 'completed';
       filtered = filtered.filter(task => task.completed === isCompleted);
     }
 
-    // Tag filter
     if (filters.tag !== 'all') {
       filtered = filtered.filter(task => task.tag === filters.tag);
     }
 
-    // Sorting
     switch (sortBy) {
       case 'date':
         filtered.sort((a, b) => {
@@ -549,7 +537,6 @@ const Tasks = ({ onOpenSidebar }) => {
     return filtered;
   }, [tasks, searchQuery, filters, sortBy]);
 
-  // Task actions
   const toggleTaskCompletion = (taskId) => {
     setTasks(prevTasks => {
       const updatedTasks = prevTasks.map(task => {
@@ -592,7 +579,6 @@ const Tasks = ({ onOpenSidebar }) => {
 
   const handleSaveTask = (taskData) => {
     if (taskData.id) {
-      // Update existing task
       setTasks(prevTasks => {
         const updatedTasks = prevTasks.map(task =>
           task.id === taskData.id ? taskData : task
@@ -601,7 +587,6 @@ const Tasks = ({ onOpenSidebar }) => {
         return updatedTasks;
       });
     } else {
-      // Add new task
       const newTask = {
         ...taskData,
         id: uuidv4(),
@@ -617,7 +602,6 @@ const Tasks = ({ onOpenSidebar }) => {
     setModalOpen(false);
   };
 
-  // Filter dropdown items
   const dateFilterItems = [
     { value: 'all', label: 'All Dates' },
     { value: 'today', label: 'Today' },
@@ -654,7 +638,7 @@ const Tasks = ({ onOpenSidebar }) => {
   ];
 
   return (
-    <div className="flex-1 tasks-bg">
+    <div className="flex-1 tasks-bg overflow-auto">
       <div className="min-h-screen flex flex-col">
         {/* Top Navigation Bar */}
         <header className="bg-white shadow-sm py-3 px-4 md:px-6">

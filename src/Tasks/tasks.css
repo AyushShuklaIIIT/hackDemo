@@ -244,6 +244,11 @@
     overflow-y: auto;
 }
 
+.modal .modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
 @media (max-width: 768px) {
     .filters-row {
         flex-direction: column;
