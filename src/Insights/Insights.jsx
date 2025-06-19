@@ -1,49 +1,31 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import './insights.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faArrowDown, faArrowRight, faArrowUp, faBolt, faChartLine, faCheckCircle, faCheckDouble, faChevronDown, faExclamationCircle, faFire, faLightbulb, faPlus, faQuoteLeft, faStar, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowRight, faArrowUp, faBolt, faChartLine, faCheckCircle, faCheckDouble, faExclamationCircle, faFire, faLightbulb, faPlus, faQuoteLeft, faStar, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import Chart from 'chart.js/auto';
 import DateRangePicker from './DateRangePicker';
 
 const productivityCircleRadius = 36;
 const productivityScore = 0.85;
 
-const stats = [
-    {
-        icon: faCheckCircle,
-        title: "Tasks Completed",
-        value: 42,
-        change: "+12%",
-        changeIcon: faArrowUp,
-        changeClass: "text-green-500",
-        sub: "vs. previous period",
-    },
-    {
-        icon: faFire,
-        title: "Current Streak",
-        value: 7,
-        sub: "Best: 14 days",
-        changeClass: "text-orange-500",
-        extra: "days"
-    },
-    {
-        icon: faChartLine,
-        title: "Daily Average",
-        value: 5.3,
-        changeClass: "text-blue-500",
-        sub: "Completed per day",
-        extra: "tasks"
-    },
-    {
-        icon: faExclamationCircle,
-        title: "Tasks Overdue",
-        value: 3,
-        change: "-25%",
-        changeIcon: faArrowDown,
-        changeClass: "text-red-500",
-        sub: "vs. previous period",
-    }
-];
+const allCategories = ['Work', 'Personal', 'Health', 'Urgent'];
+const allHours = [6, 8, 10, 12, 14, 16, 18, 20, 22];
+
+const getCategoryFromTag = tag => {
+    if(!tag) return 'Work';
+    const t = tag.toLowerCase();
+    if(t === 'work') return 'Work';
+    if(t === 'personal') return 'Personal';
+    if(t === 'health') return 'Health';
+    if(t === 'urgent') return 'Urgent';
+    return 'Work';
+}
+
+const getHourFromTime = time => {
+    if(!time) return 8;
+    const parts = time.split(':');
+    return parseInt(parts[0], 10);
+}
 
 const achievements = [
     {
@@ -101,36 +83,152 @@ const goals = [
     }
 ];
 
-const initialTimeChartData = {
-    weekly: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        data: [5, 7, 4, 6, 8, 3, 9]
-    },
-    monthly: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        data: [24, 32, 28, 36]
-    }
-};
-
-const initialCategoryChartData = {
-    labels: ['Work', 'Personal', 'Health', 'Urgent'],
-    data: [42, 28, 18, 12]
-};
-
-const hourlyChartData = {
-    labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM', '10PM'],
-    data: [1, 3, 5, 2, 4, 6, 3, 2, 1]
-};
-
 const Insights = () => {
     const [timePeriod, setTimePeriod] = useState('weekly');
     const [categoryChartType, setCategoryChartType] = useState('donut');
+    const [dateRange, setDateRange] = useState({
+        startDate: new Date(new Date().setDate(new Date().getDate() - 6)), 
+        endDate: new Date()
+    });
 
+    const [allTasks, setAllTasks] = useState([]);
+    useEffect(() => {
+        const data = localStorage.getItem('virtualMentorTasks');
+        if(data) {
+            try {
+                const parsed = JSON.parse(data);
+                setAllTasks(Array.isArray(parsed) ? parsed: []);
+            } catch {
+                setAllTasks([]);
+            }
+        }
+        else {
+            setAllTasks([]);
+        }
+    }, []);
+
+    // Derived, filtered data
+    const filteredTasks = allTasks.filter(t => {
+        const d = new Date(t.createdAt);
+        return d >= new Date(dateRange.startDate) && d <= new Date(dateRange.endDate);
+    });
+
+    // Time chart data: Weekly (group by day), Monthly (group by week)
+    let timeChartData = { labels: [], data: [] };
+    if (timePeriod === 'weekly') {
+        const days = [];
+        const dataMap = {};
+        for (let i = 0; i < 7; ++i) {
+            const day = new Date(dateRange.startDate);
+            day.setDate(day.getDate() + i);
+            const label = day.toLocaleDateString(undefined, { weekday: 'short' });
+            days.push(label);
+            dataMap[label] = 0;
+        }
+        filteredTasks.forEach(t => {
+            const label = new Date(t.createdAt).toLocaleDateString(undefined, { weekday: 'short' });
+            if (label in dataMap) dataMap[label]++;
+        });
+        timeChartData.labels = days;
+        timeChartData.data = days.map(label => dataMap[label]);
+    } else if (timePeriod === 'monthly') {
+        // Divide into weeks
+        const start = new Date(dateRange.startDate);
+        const end = new Date(dateRange.endDate);
+        const weeks = [];
+        const weekLabels = [];
+        let curr = new Date(start);
+        let i = 1;
+        while (curr <= end) {
+            weekLabels.push(`Week ${i++}`);
+            weeks.push({ start: new Date(curr), end: new Date(curr.getFullYear(), curr.getMonth(), curr.getDate() + 6) });
+            curr.setDate(curr.getDate() + 7);
+        }
+        // Count per week
+        const weekCounts = Array(weeks.length).fill(0);
+        filteredTasks.forEach(t => {
+            const td = new Date(t.createdAt);
+            weeks.forEach((w, idx) => {
+                if (td >= w.start && td <= w.end) weekCounts[idx]++;
+            });
+        });
+        timeChartData.labels = weekLabels;
+        timeChartData.data = weekCounts;
+    }
+
+    // Category chart data
+    const categoryCounts = {};
+    allCategories.forEach(cat => categoryCounts[cat] = 0);
+    filteredTasks.forEach(t => {
+        const cat = getCategoryFromTag(t.tag);
+        categoryCounts[cat]++;
+    });
+    const categoryChartData = {
+        labels: allCategories,
+        data: allCategories.map(cat => categoryCounts[cat])
+    };
+
+    // Hourly productivity chart data (group by hour)
+    const hourCounts = {};
+    allHours.forEach(h => hourCounts[h] = 0);
+    filteredTasks.forEach(t => {
+        // Map to nearest defined hour slot
+        const hour = getHourFromTime(t.time);
+        const slot = allHours.reduce((prev, curr) => Math.abs(curr - hour) < Math.abs(prev - hour) ? curr : prev);
+        hourCounts[slot]++;
+    });
+    const hourlyChartData = {
+        labels: allHours.map(h => {
+            if(h < 12) return `${h}AM`;
+            if(h === 12) return `12PM`;
+            return `${h - 12}PM`;
+        }),
+        data: allHours.map(h => hourCounts[h])
+    };
+
+    // Stats
+    const stats = [
+        {
+            icon: faCheckCircle,
+            title: "Tasks Completed",
+            value: filteredTasks.length,
+            change: "+12%",
+            changeIcon: faArrowUp,
+            changeClass: "text-green-500",
+            sub: "vs. previous period",
+        },
+        {
+            icon: faFire,
+            title: "Current Streak",
+            value: 7,
+            sub: "Best: 14 days",
+            changeClass: "text-orange-500",
+            extra: "days"
+        },
+        {
+            icon: faChartLine,
+            title: "Daily Average",
+            value: (filteredTasks.length / ((new Date(dateRange.endDate) - new Date(dateRange.startDate)) / 86400000 + 1)).toFixed(1),
+            changeClass: "text-blue-500",
+            sub: "Completed per day",
+            extra: "tasks"
+        },
+        {
+            icon: faExclamationCircle,
+            title: "Tasks Overdue",
+            value: filteredTasks.filter(t => !t.completed && new Date(t.dueDate) < new Date()).length,
+            change: "-25%",
+            changeIcon: faArrowDown,
+            changeClass: "text-red-500",
+            sub: "vs. previous period",
+        }
+    ];
+
+    // Chart refs and Chart.js instance holders
     const timeChartRef = useRef(null);
     const categoryChartRef = useRef(null);
     const hourlyChartRef = useRef(null);
     const productivityCircleRef = useRef(null);
-
     const chartInstances = useRef({});
 
     useEffect(() => {
@@ -142,6 +240,7 @@ const Insights = () => {
         }
     }, []);
 
+    // Time Chart (depends on timePeriod and dateRange)
     useEffect(() => {
         if (!timeChartRef.current) return;
         if (chartInstances.current.timeChart) {
@@ -151,10 +250,10 @@ const Insights = () => {
         chartInstances.current.timeChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: initialTimeChartData[timePeriod].labels,
+                labels: timeChartData.labels,
                 datasets: [{
                     label: 'Tasks Completed',
-                    data: initialTimeChartData[timePeriod].data,
+                    data: timeChartData.data,
                     borderColor: '#7738ea',
                     backgroundColor: 'rgba(119, 56, 234, 0.1)',
                     borderWidth: 2,
@@ -181,7 +280,7 @@ const Insights = () => {
                         usePointStyle: true,
                         callbacks: {
                             title: ctx => ctx[0].label,
-                            label: ctx => `${ctx.parsed.y} tasks completed`
+                            label: ctx => `${ctx.parsed} tasks completed`
                         }
                     }
                 },
@@ -196,8 +295,9 @@ const Insights = () => {
         });
         const chartRefCopy = chartInstances.current;
         return () => { if (chartRefCopy.timeChart) chartRefCopy.timeChart.destroy(); }
-    }, [timePeriod]);
+    }, [timePeriod, dateRange, timeChartData.data, timeChartData.labels]);
 
+    // Category Chart (depends on dateRange and categoryChartType)
     useEffect(() => {
         if (!categoryChartRef.current) return;
         if (chartInstances.current.categoryChart) {
@@ -207,9 +307,9 @@ const Insights = () => {
         chartInstances.current.categoryChart = new Chart(ctx, {
             type: categoryChartType === 'donut' ? 'doughnut' : 'bar',
             data: {
-                labels: initialCategoryChartData.labels,
+                labels: categoryChartData.labels,
                 datasets: [{
-                    data: initialCategoryChartData.data,
+                    data: categoryChartData.data,
                     backgroundColor: ['#7738ea', '#3b82f6', '#10b981', '#ef4444'],
                     borderWidth: 0,
                     hoverOffset: 4
@@ -260,8 +360,9 @@ const Insights = () => {
         });
         const chartRefCopy = chartInstances.current;
         return () => { if (chartRefCopy.categoryChart) chartRefCopy.categoryChart.destroy(); }
-    }, [categoryChartType]);
+    }, [categoryChartType, dateRange, categoryChartData.data, categoryChartData.labels]);
 
+    // Hourly Productivity Chart (depends on dateRange)
     useEffect(() => {
         if (!hourlyChartRef.current) return;
         if (chartInstances.current.hourlyChart) {
@@ -299,7 +400,7 @@ const Insights = () => {
                         boxPadding: 6,
                         callbacks: {
                             title: ctx => ctx[0].label,
-                            label: ctx => `${ctx.parsed.y} tasks completed`
+                            label: ctx => `${ctx.parsed} tasks completed`
                         }
                     }
                 },
@@ -314,10 +415,11 @@ const Insights = () => {
         });
         const chartRefCopy = chartInstances.current;
         return () => { if (chartRefCopy.hourlyChart) chartRefCopy.hourlyChart.destroy(); }
-    }, []);
+    }, [dateRange, hourlyChartData.data, hourlyChartData.labels]);
 
     const handleTimePeriodChange = useCallback((period) => setTimePeriod(period), []);
     const handleCategoryChartTypeChange = useCallback((type) => setCategoryChartType(type), []);
+    const handleDateRangeChange = useCallback((range) => setDateRange(range), []);
 
     return (
         <div className='insights-bg'>
@@ -343,7 +445,7 @@ const Insights = () => {
                                 <p className='text-gray-600 mt-1'>Track your productivity and achievements</p>
                             </div>
                             <div className='mt-4 md:mt-0 flex items-center'>
-                                <DateRangePicker></DateRangePicker>
+                                <DateRangePicker value={dateRange} onChange={handleDateRangeChange} />
                             </div>
                         </div>
 
