@@ -90,6 +90,12 @@ const Insights = () => {
         startDate: new Date(new Date().setDate(new Date().getDate() - 6)), 
         endDate: new Date()
     });
+    const [completedChangeStr, setCompletedChangeStr] = useState("");
+    const [overdueChangeStr, setOverdueChangeStr] = useState("");
+    const [currOverdue, setCurrOverdue] = useState(0);
+    const [currCompleted, setCurrCompleted] = useState(0);
+    const [completedChange, setCompletedChange] = useState(0);
+    const [overdueChange, setOverdueChange] = useState(0);
 
     const [allTasks, setAllTasks] = useState([]);
     useEffect(() => {
@@ -106,6 +112,34 @@ const Insights = () => {
             setAllTasks([]);
         }
     }, []);
+
+    useEffect(() => {
+        const days = Math.floor((dateRange.endDate - dateRange.startDate) / (1000 * 60 * 60 * 24)) + 1;
+        const prevEnd = new Date(dateRange.startDate);
+        prevEnd.setDate(prevEnd.getDate() - 1);
+        const prevStart = new Date(prevEnd);
+        prevStart.setDate(prevStart.getDate() - (days - 1));
+
+        const currentTasks = allTasks.filter(t => {
+            const d = new Date(t.createdAt);
+            return d >= new Date(dateRange.startDate) && d <= new Date(dateRange.endDate);
+        });
+
+        const prevTasks = allTasks.filter(t => {
+            const d = new Date(t.createdAt);
+            return d >= prevStart && d <= prevEnd;
+        })
+
+        setCurrCompleted(currentTasks.length);
+        const prevCompleted = prevTasks.length;
+        setCompletedChange(prevCompleted === 0 ? (currCompleted === 0 ? 0 : 100) : ((currCompleted - prevCompleted) / prevCompleted) * 100);
+        setCompletedChangeStr((completedChange >= 0 ? "+" : "") + completedChange.toFixed(0) + "%");
+
+        setCurrOverdue(currentTasks.filter(t => !t.completed && new Date(t.dueDate) < new Date()).length);
+        const prevOverdue = prevTasks.filter(t => !t.completed && new Date(t.dueDate) < prevEnd).length;
+        setOverdueChange(prevOverdue === 0 ? (currOverdue === 0 ? 0 : 100) : ((currOverdue - prevOverdue) / prevOverdue) * 100);
+        setOverdueChangeStr((overdueChange >= 0 ? '+': "") + overdueChange.toFixed(0) + "%");
+    }, [dateRange.endDate, dateRange.startDate, allTasks, completedChange, currCompleted, currOverdue, overdueChange])
 
     // Derived, filtered data
     const filteredTasks = allTasks.filter(t => {
@@ -142,7 +176,7 @@ const Insights = () => {
         while (curr <= end) {
             weekLabels.push(`Week ${i++}`);
             weeks.push({ start: new Date(curr), end: new Date(curr.getFullYear(), curr.getMonth(), curr.getDate() + 6) });
-            curr.setDate(curr.getDate() + 7);
+            curr = new Date(curr.getFullYear(), curr.getMonth(), curr.getDate() + 7);
         }
         // Count per week
         const weekCounts = Array(weeks.length).fill(0);
@@ -174,7 +208,7 @@ const Insights = () => {
     filteredTasks.forEach(t => {
         // Map to nearest defined hour slot
         const hour = getHourFromTime(t.time);
-        const slot = allHours.reduce((prev, curr) => Math.abs(curr - hour) < Math.abs(prev - hour) ? curr : prev);
+        const slot = allHours.reduce((prev, curr) => Math.abs(curr - hour) < Math.abs(prev - hour) ? curr : prev, allHours[0]);
         hourCounts[slot]++;
     });
     const hourlyChartData = {
@@ -191,10 +225,10 @@ const Insights = () => {
         {
             icon: faCheckCircle,
             title: "Tasks Completed",
-            value: filteredTasks.length,
-            change: "+12%",
-            changeIcon: faArrowUp,
-            changeClass: "text-green-500",
+            value: currCompleted,
+            change: completedChangeStr,
+            changeIcon: completedChange >= 0 ? faArrowUp : faArrowDown,
+            changeClass: completedChange >= 0 ? "text-green-500" : "text-red-500",
             sub: "vs. previous period",
         },
         {
@@ -216,10 +250,10 @@ const Insights = () => {
         {
             icon: faExclamationCircle,
             title: "Tasks Overdue",
-            value: filteredTasks.filter(t => !t.completed && new Date(t.dueDate) < new Date()).length,
-            change: "-25%",
-            changeIcon: faArrowDown,
-            changeClass: "text-red-500",
+            value: currOverdue,
+            change: overdueChangeStr,
+            changeIcon: overdueChange >= 0 ? faArrowUp : faArrowDown,
+            changeClass: overdueChange >= 0 ? "text-green-500" : "text-red-500",
             sub: "vs. previous period",
         }
     ];
@@ -280,7 +314,13 @@ const Insights = () => {
                         usePointStyle: true,
                         callbacks: {
                             title: ctx => ctx[0].label,
-                            label: ctx => `${ctx.parsed} tasks completed`
+                            label: function (context) {
+                                let value = context.parsed;
+                                if (value !== null && typeof value === 'object' && 'y' in value) {
+                                    value = value.y;
+                                }
+                                return `${value} tasks completed`;
+                            }
                         }
                     }
                 },
@@ -341,7 +381,7 @@ const Insights = () => {
                         callbacks: {
                             label: function (context) {
                                 let value = context.parsed;
-                                if (typeof value === 'object' && value !== null && 'y' in value) {
+                                if (value !== null && typeof value === 'object' && 'y' in value) {
                                     value = value.y;
                                 }
                                 return `${value} tasks completed`;
@@ -400,7 +440,13 @@ const Insights = () => {
                         boxPadding: 6,
                         callbacks: {
                             title: ctx => ctx[0].label,
-                            label: ctx => `${ctx.parsed} tasks completed`
+                            label: function (context) {
+                                let value = context.parsed;
+                                if (value !== null && typeof value === 'object' && 'y' in value) {
+                                    value = value.y;
+                                }
+                                return `${value} tasks completed`;
+                            }
                         }
                     }
                 },

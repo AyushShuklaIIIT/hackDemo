@@ -28,7 +28,7 @@ const DateRangePicker = ({ value, onChange }) => {
   const handleChange = (item) => {
     const selected = item.selection;
     setRange([selected]);
-    onChange && onChange({
+    onChange?.({
       startDate: selected.startDate,
       endDate: selected.endDate
     });
