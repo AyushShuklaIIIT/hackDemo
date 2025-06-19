@@ -3,6 +3,7 @@ import './insights.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faArrowDown, faArrowRight, faArrowUp, faBolt, faChartLine, faCheckCircle, faCheckDouble, faChevronDown, faExclamationCircle, faFire, faLightbulb, faPlus, faQuoteLeft, faStar, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import Chart from 'chart.js/auto';
+import DateRangePicker from './DateRangePicker';
 
 const productivityCircleRadius = 36;
 const productivityScore = 0.85;
@@ -342,11 +343,7 @@ const Insights = () => {
                                 <p className='text-gray-600 mt-1'>Track your productivity and achievements</p>
                             </div>
                             <div className='mt-4 md:mt-0 flex items-center'>
-                                <div className='date-range-picker flex items-center'>
-                                    <FontAwesomeIcon icon={faCalendarAlt} className='text-gray-500 mr-2' />
-                                    <span>Last 30 days</span>
-                                    <FontAwesomeIcon icon={faChevronDown} className='text-gray-500 ml-2 text-xs' />
-                                </div>
+                                <DateRangePicker></DateRangePicker>
                             </div>
                         </div>
 
