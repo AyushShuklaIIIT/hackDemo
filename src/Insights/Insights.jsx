@@ -12,6 +12,37 @@ const productivityScore = 0.85;
 const allCategories = ['Work', 'Personal', 'Health', 'Urgent'];
 const allHours = [6, 8, 10, 12, 14, 16, 18, 20, 22];
 
+const getStreak = tasks => {
+    let streak = 0;
+    const today = new Date();
+    for(let i = 0; i < 100; i++) {
+        const day = new Date(today);
+        day.setDate(today.getDate() - i);
+        const completed = tasks.some(t => t.completed && new Date(t.createdAt).toDateString() === day.toDateString());
+        if(completed) {
+            streak++;
+        } else {
+            break;
+        }
+    }
+    return streak;
+}
+
+const isPerfectWeek = tasks => {
+    const today = new Date();
+    for(let i = 0; i < 7; i++) {
+        const day = new Date(today);
+        day.setDate(today.getDate() - i);
+        const dueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate).toDateString() === day.toDateString());
+        if(dueTasks.length === 0) continue;
+        const completedTasks = dueTasks.filter(t => t.completed).length;
+        if(completedTasks < dueTasks.length) {
+            return false;
+        }
+    }
+    return true;
+}
+
 const getCategoryFromTag = tag => {
     if (!tag) return 'Work';
     const t = tag.toLowerCase();
@@ -27,44 +58,6 @@ const getHourFromTime = time => {
     const parts = time.split(':');
     return parseInt(parts[0], 10);
 }
-
-const achievements = [
-    {
-        icon: faFire,
-        iconClass: "bg-purple-100 text-purple-600",
-        title: "7-Day Streak",
-        desc: "Complete tasks 7 days in a row",
-        progress: null
-    },
-    {
-        icon: faBolt,
-        iconClass: "bg-blue-100 text-blue-600",
-        title: "Early Bird",
-        desc: "Complete 5 tasks before 10 AM",
-        progress: null
-    },
-    {
-        icon: faCheckDouble,
-        iconClass: "bg-green-100 text-green-600",
-        title: "Overachiever",
-        desc: "Complete 10+ tasks in one day",
-        progress: null
-    },
-    {
-        icon: faStar,
-        iconClass: "bg-gray-100 text-gray-400",
-        title: "Perfect Week",
-        desc: "Complete all planned tasks for a week",
-        progress: { value: 60, text: "60% completed" }
-    },
-    {
-        icon: faTrophy,
-        iconClass: "bg-gray-100 text-gray-400",
-        title: "Task Master",
-        desc: "Complete 100 tasks total",
-        progress: { value: 42, text: "42/100 tasks" }
-    }
-];
 
 const goals = [
     {
@@ -468,6 +461,59 @@ const Insights = ({ onOpenSidebar }) => {
     const handleCategoryChartTypeChange = useCallback((type) => setCategoryChartType(type), []);
     const handleDateRangeChange = useCallback((range) => setDateRange(range), []);
 
+    const completedTasks = allTasks.filter(t => t.completed);
+    const streak = getStreak(allTasks);
+    const earlyBirdCount = completedTasks.filter(t => Number((t.time || "").split(':')[0]) < 10).length;
+    const dailyCounts = {};
+    completedTasks.forEach(t => {
+        const d = new Date(t.createdAt).toDateString();
+        dailyCounts[d] = (dailyCounts[d] || 0) + 1;
+    });
+    const maxTasksInADay = Math.max(0, ...Object.values(dailyCounts));
+    const perfectWeek = isPerfectWeek(allTasks);
+    const completedCount = completedTasks.length;
+    const achievements = [
+        {
+            icon: faFire,
+            iconClass: "bg-purple-100 text-purple-600",
+            title: "7-Day Streak",
+            desc: "Complete tasks 7 days in a row",
+            earned: streak >= 7,
+            progress: streak < 7 ? {value: Math.min((streak / 7) * 100, 100), text: `${streak}/7 days` } : null
+        },
+        {
+            icon: faBolt,
+            iconClass: "bg-blue-100 text-blue-600",
+            title: "Early Bird",
+            desc: "Complete 5 tasks before 10 AM",
+            earned: earlyBirdCount >= 5,
+            progress: earlyBirdCount < 5 ? {value: Math.min((earlyBirdCount / 5) * 100, 100), text: `${earlyBirdCount}/5 tasks` } : null
+        },
+        {
+            icon: faCheckDouble,
+            iconClass: "bg-green-100 text-green-600",
+            title: "Overachiever",
+            desc: "Complete 10+ tasks in one day",
+            earned: maxTasksInADay >= 10,
+            progress: maxTasksInADay < 10 ? {value: Math.min((maxTasksInADay / 10) * 100, 100), text: `${maxTasksInADay}/10 tasks` } : null
+        },
+        {
+            icon: faStar,
+            iconClass: "bg-gray-100 text-gray-400",
+            title: "Perfect Week",
+            desc: "Complete all planned tasks for a week",
+            earned: perfectWeek,
+            progress: !perfectWeek ? { value: 0, text: "In progress" } : null
+        },
+        {
+            icon: faTrophy,
+            iconClass: "bg-gray-100 text-gray-400",
+            title: "Task Master",
+            desc: "Complete 100 tasks total",
+            earned: completedCount >= 100,
+            progress: completedCount < 100 ? { value: Math.min((completedCount / 100) * 100, 100), text: `${completedCount}/100 tasks` } : null
+        }
+    ]
     return (
         <div className='insights-bg flex-1 flex-grow min-w-0'>
             <div className='min-h-screen flex flex-col'>
@@ -642,12 +688,12 @@ const Insights = ({ onOpenSidebar }) => {
                             <div className='overflow-x-auto pb-2'>
                                 <div className='flex space-x-4' style={{ minWidth: "max-content" }}>
                                     {achievements.map((ach) => (
-                                        <div className='achievement-card p-4 text-center fade-in' key={ach.title}>
+                                        <div className={`achievement-card p-4 text-center fade-in ${ach.earned ? '': 'locked'}`} key={ach.title}>
                                             <div className={`achievement-icon ${ach.iconClass} mb-3 ${ach.progress ? '' : 'pulse'}`}>
                                                 <FontAwesomeIcon icon={ach.icon} />
                                             </div>
-                                            <h4 className={`font-medium ${ach.iconClass.includes('gray') ? 'text-gray-400' : 'text-gray-800'}`}>{ach.title}</h4>
-                                            <p className={`text-sm mt-1 ${ach.iconClass.includes('gray') ? 'text-gray-400' : 'text-gray-500'}`}>{ach.desc}</p>
+                                            <h4 className={`font-medium ${!ach.earned ? 'text-gray-400': 'text-gray-800'}`}>{ach.title}</h4>
+                                            <p className={`text-sm mt-1 ${!ach.earned ? 'text-gray-400': 'text-gray-500'}`}>{ach.desc}</p>
                                             {ach.progress && (
                                                 <div className='mt-2'>
                                                     <div className='progress-bar'>
