@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown, faArrowRight, faArrowUp, faBolt, faChartLine, faCheckCircle, faCheckDouble, faExclamationCircle, faFire, faLightbulb, faPlus, faQuoteLeft, faStar, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import Chart from 'chart.js/auto';
 import DateRangePicker from './DateRangePicker';
+import HamburgerIcon from '../SVGs/HamburgerIcon'
 
 const productivityCircleRadius = 36;
 const productivityScore = 0.85;
@@ -12,17 +13,17 @@ const allCategories = ['Work', 'Personal', 'Health', 'Urgent'];
 const allHours = [6, 8, 10, 12, 14, 16, 18, 20, 22];
 
 const getCategoryFromTag = tag => {
-    if(!tag) return 'Work';
+    if (!tag) return 'Work';
     const t = tag.toLowerCase();
-    if(t === 'work') return 'Work';
-    if(t === 'personal') return 'Personal';
-    if(t === 'health') return 'Health';
-    if(t === 'urgent') return 'Urgent';
+    if (t === 'work') return 'Work';
+    if (t === 'personal') return 'Personal';
+    if (t === 'health') return 'Health';
+    if (t === 'urgent') return 'Urgent';
     return 'Work';
 }
 
 const getHourFromTime = time => {
-    if(!time) return 8;
+    if (!time) return 8;
     const parts = time.split(':');
     return parseInt(parts[0], 10);
 }
@@ -83,11 +84,11 @@ const goals = [
     }
 ];
 
-const Insights = () => {
+const Insights = ({ onOpenSidebar }) => {
     const [timePeriod, setTimePeriod] = useState('weekly');
     const [categoryChartType, setCategoryChartType] = useState('donut');
     const [dateRange, setDateRange] = useState({
-        startDate: new Date(new Date().setDate(new Date().getDate() - 6)), 
+        startDate: new Date(new Date().setDate(new Date().getDate() - 6)),
         endDate: new Date()
     });
     const [completedChangeStr, setCompletedChangeStr] = useState("");
@@ -100,10 +101,10 @@ const Insights = () => {
     const [allTasks, setAllTasks] = useState([]);
     useEffect(() => {
         const data = localStorage.getItem('virtualMentorTasks');
-        if(data) {
+        if (data) {
             try {
                 const parsed = JSON.parse(data);
-                setAllTasks(Array.isArray(parsed) ? parsed: []);
+                setAllTasks(Array.isArray(parsed) ? parsed : []);
             } catch {
                 setAllTasks([]);
             }
@@ -138,7 +139,7 @@ const Insights = () => {
         setCurrOverdue(currentTasks.filter(t => !t.completed && new Date(t.dueDate) < new Date()).length);
         const prevOverdue = prevTasks.filter(t => !t.completed && new Date(t.dueDate) < prevEnd).length;
         setOverdueChange(prevOverdue === 0 ? (currOverdue === 0 ? 0 : 100) : ((currOverdue - prevOverdue) / prevOverdue) * 100);
-        setOverdueChangeStr((overdueChange >= 0 ? '+': "") + overdueChange.toFixed(0) + "%");
+        setOverdueChangeStr((overdueChange >= 0 ? '+' : "") + overdueChange.toFixed(0) + "%");
     }, [dateRange.endDate, dateRange.startDate, allTasks, completedChange, currCompleted, currOverdue, overdueChange])
 
     // Derived, filtered data
@@ -213,8 +214,8 @@ const Insights = () => {
     });
     const hourlyChartData = {
         labels: allHours.map(h => {
-            if(h < 12) return `${h}AM`;
-            if(h === 12) return `12PM`;
+            if (h < 12) return `${h}AM`;
+            if (h === 12) return `12PM`;
             return `${h - 12}PM`;
         }),
         data: allHours.map(h => hourCounts[h])
@@ -253,7 +254,7 @@ const Insights = () => {
             value: currOverdue,
             change: overdueChangeStr,
             changeIcon: overdueChange >= 0 ? faArrowUp : faArrowDown,
-            changeClass: overdueChange >= 0 ? "text-green-500" : "text-red-500",
+            changeClass: overdueChange >= 0 ? "text-red-500" : "text-green-500",
             sub: "vs. previous period",
         }
     ];
@@ -468,11 +469,16 @@ const Insights = () => {
     const handleDateRangeChange = useCallback((range) => setDateRange(range), []);
 
     return (
-        <div className='insights-bg'>
+        <div className='insights-bg flex-1 flex-grow min-w-0'>
             <div className='min-h-screen flex flex-col'>
                 {/* Top Navigation Bar */}
                 <header className='bg-white shadow-sm py-3 px-4 md:px-6'>
                     <div className='flex justify-between items-center'>
+                        <div className='flex items-center'>
+                            <button id='open-sidebar' className='md:hidden mr-4 text-[#64748b] hover:text-[#334155]' onClick={onOpenSidebar}>
+                                <HamburgerIcon />
+                            </button>
+                        </div>
                         <div className='flex items-center'>
                             <div className='w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center cursor-pointer'>
                                 <span className='text-gray-700 font-medium'>JD</span>
@@ -482,7 +488,7 @@ const Insights = () => {
                 </header>
 
                 {/* Main Content */}
-                <main className='flex-grow p-4 md:p-6'>
+                <main className='flex-grow p-2 sm:p-4 md:p-6'>
                     <div className='max-w-7xl mx-auto'>
                         {/* Page Title and Date Range */}
                         <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-6'>
@@ -547,7 +553,7 @@ const Insights = () => {
 
                         {/* Charts Grid */}
                         <div className='charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6'>
-                            <div className='card p-5 fade-in'>
+                            <div className='card p-4 sm:p-5 fade-in'>
                                 <div className='flex items-center justify-between mb-4'>
                                     <h3 className='font-semibold text-gray-800'>Tasks Completed Over Time</h3>
                                     <div className='toggle-btn'>
@@ -561,12 +567,12 @@ const Insights = () => {
                                         >Monthly</span>
                                     </div>
                                 </div>
-                                <div className='chart-container'>
+                                <div className='chart-container-responsive'>
                                     <canvas ref={timeChartRef}></canvas>
                                 </div>
                             </div>
 
-                            <div className='card p-5 fade-in'>
+                            <div className='card p-4 sm:p-5 fade-in'>
                                 <div className='flex items-center justify-between mb-4'>
                                     <h3 className='font-semibold text-gray-800'>Task Category Breakdown</h3>
                                     <div className='toggle-btn'>
@@ -580,21 +586,21 @@ const Insights = () => {
                                         >Bar</span>
                                     </div>
                                 </div>
-                                <div className='chart-container'>
+                                <div className='chart-container-responsive'>
                                     <canvas ref={categoryChartRef}></canvas>
                                 </div>
                             </div>
 
-                            <div className='card p-5 fade-in'>
+                            <div className='card p-4 sm:p-5 fade-in'>
                                 <h3 className='font-semibold text-gray-800 mb-4'>Hourly Productivity</h3>
-                                <div className='chart-container'>
+                                <div className='chart-container-responsive'>
                                     <canvas ref={hourlyChartRef}></canvas>
                                 </div>
                             </div>
 
-                            <div className='card p-5 fade-in'>
+                            <div className='card p-4 sm:p-5 fade-in'>
                                 <h3 className='font-semibold text-gray-800 mb-4'>Productivity Score</h3>
-                                <div className='flex items-center justify-between mb-6'>
+                                <div className='flex flex-col sm:flex-row items-center justify-between mb-6'>
                                     <div className='circular-progress'>
                                         <svg width={80} height={80}>
                                             <circle className='bg' cx={40} cy={40} r={36}></circle>
@@ -602,7 +608,7 @@ const Insights = () => {
                                         </svg>
                                         <div className='text'>85%</div>
                                     </div>
-                                    <div className='ml-4 flex-grow'>
+                                    <div className='sm:ml-4 flex-grow w-full sm:w-auto'>
                                         <div className='flex justify-between mb-1'>
                                             <span className='text-sm text-gray-600'>Task Completion Rate</span>
                                             <span className='text-sm font-medium'>92%</span>

@@ -39,10 +39,10 @@ const Sidebar = ({open, onClose}) => {
                         <span className='font-medium'>Calendar</span>
                     </NavLink>
 
-                    <a href="#" className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
+                    <NavLink to="/insights" className={(e) => `${e.isActive ? "sidebar-active" : "text-[#475569] hover:bg-gray-50"} flex items-center px-4 py-3 rounded-lg group`}>
                         <InsightsIcon></InsightsIcon>
                         <span className='font-medium'>Insights</span>
-                    </a>
+                    </NavLink>
 
                     <a href='#' className='flex items-center px-4 py-3 rounded-lg text-[#475569] hover:bg-gray-50 group'>
                         <SettingsIcon></SettingsIcon>

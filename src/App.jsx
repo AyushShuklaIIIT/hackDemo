@@ -5,16 +5,14 @@ import Signup from "./SignUp/Signup"
 import Login from "./SignUp/Login"
 import CalPlusNav from "./Calendar/CalPlusNav"
 import TaskNav from "./Tasks/TaskNav"
-import Insights from "./Insights/Insights"
+import InsightNav from './Insights/InsightNav'
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
       element: <>
-        {/* <HomePage></HomePage> */}
-        {/* <Tasks></Tasks> */}
-        <Insights></Insights>
+        <HomePage></HomePage>
       </>
     },
     {
@@ -42,6 +40,10 @@ function App() {
     {
       path: '/tasks',
       element: <><TaskNav></TaskNav></>
+    },
+    {
+      path: '/insights',
+      element: <><InsightNav></InsightNav></>
     }
   ])
   return (
