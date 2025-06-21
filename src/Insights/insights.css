@@ -208,6 +208,7 @@
     transform: translate(-50%, -50%);
     font-size: 1.25rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .date-range-picker {
